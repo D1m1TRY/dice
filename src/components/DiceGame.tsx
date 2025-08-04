@@ -31,7 +31,6 @@ const DiceGame: React.FC = () => {
     open: boolean;
     win: boolean | null;
   }>({ open: false, win: null });
-  const [snackbarKey, setSnackbarKey] = useState<number>(0);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -67,7 +66,6 @@ const DiceGame: React.FC = () => {
 
   const handlePlay = () => {
     setSnackbar({ open: false, win: null });
-    setSnackbarKey((k) => k + 1);
     setTimeout(() => {
       doPlay();
     }, 50);
@@ -77,24 +75,23 @@ const DiceGame: React.FC = () => {
     const roll =
       Math.floor(Math.random() * GAME_CONSTANTS.MAX_ROLL) +
       GAME_CONSTANTS.MIN_ROLL;
-    let win = false;
-    if (condition === GameCondition.OVER) {
-      win = roll > threshold;
-    } else {
-      win = roll < threshold;
-    }
+
+    const isOver = condition === GameCondition.OVER;
+    const isWinner = isOver ? roll > threshold : roll < threshold;
+
     const gameResult: GameResult = {
       roll,
       threshold,
       condition,
-      win,
+      win: isWinner,
       time: new Date(),
     };
+
     setResult(gameResult);
     setHistory((prev) =>
       [gameResult, ...prev].slice(0, GAME_CONSTANTS.MAX_HISTORY)
     );
-    setSnackbar({ open: true, win });
+    setSnackbar({ open: true, win: isWinner });
   };
 
   const handleCloseSnackbar = (
@@ -112,6 +109,10 @@ const DiceGame: React.FC = () => {
     return `You lose! Number was ${wasHigher ? "higher" : "lower"}`;
   };
 
+  if (!isHistoryLoaded) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Box
       maxWidth={{ xs: "100%", sm: 500, md: 600 }}
@@ -128,7 +129,6 @@ const DiceGame: React.FC = () => {
         win={snackbar.win}
         message={getSnackbarMessage()}
         onClose={handleCloseSnackbar}
-        key={snackbarKey}
       />
 
       <GameResultDisplay result={result?.roll || null} />

@@ -6,7 +6,6 @@ type GameToastProps = {
   win: boolean | null;
   message: string;
   onClose: (event?: React.SyntheticEvent | Event, reason?: string) => void;
-  key: number;
 };
 
 const GameToast: React.FC<GameToastProps> = ({
@@ -14,11 +13,9 @@ const GameToast: React.FC<GameToastProps> = ({
   win,
   message,
   onClose,
-  key,
 }) => {
   return (
     <Snackbar
-      key={key}
       open={open}
       autoHideDuration={2000}
       onClose={onClose}
